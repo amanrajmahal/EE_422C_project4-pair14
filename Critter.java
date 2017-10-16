@@ -13,9 +13,12 @@ package assignment4;
  */
 
 
+import org.omg.CORBA.DynAnyPackage.Invalid;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.lang.reflect.*;
 
 /* see the PDF for descriptions of the methods and fields in this class
  * you may add fields, methods or inner classes to Critter ONLY if you make your additions private
@@ -25,8 +28,8 @@ import java.util.List;
 
 public abstract class Critter {
 	private static String assignment4;
-	private	static List<Critter> population = new java.util.ArrayList<Critter>();
-	private static List<Critter> babies = new java.util.ArrayList<Critter>();
+	public	static List<Critter> population = new java.util.ArrayList<Critter>();
+	public static List<Critter> babies = new java.util.ArrayList<Critter>();
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -51,15 +54,98 @@ public abstract class Critter {
 	
 	private int x_coord;
 	private int y_coord;
+
+	// ------------------ Gets and Sets ------------------
+	public int getXcoord(){
+		return this.x_coord;
+	}
+
+	public void setXcoord(int x){
+		this.x_coord = x;
+	}
+
+	public int getYcoord(){
+		return this.y_coord;
+	}
+
+	public void setYcoord(int y){
+		this.y_coord = y;
+	}
+	//----------------------------------------------------
 	
 	protected final void walk(int direction) {
+		switch(direction){
+			case 0:{					// Right
+				moveX(1);
+			} case 1: {					// Up/Right
+				moveX(1);
+				moveY(1);
+			} case 2: {					// Up
+				moveY(1);
+			} case 3: {					// Up/Left
+				moveX(-1);
+				moveY(1);
+			} case 4: {					// Left
+				moveX(-1);
+			} case 5: {					// Down/Left
+				moveX(-1);
+				moveY(-1);;
+			} case 6: {					// Down
+				moveY(-1);
+			} case 7: {					// Down/Right
+				moveX(1);
+				moveY(-1);
+			}
+		}
 	}
 	
 	protected final void run(int direction) {
+		switch(direction){
+			case 0:{					// Right
+				moveX(2);
+			} case 1: {					// Up/Right
+				moveX(2);
+				moveY(2);
+			} case 2: {					// Up
+				moveY(2);
+			} case 3: {					// Up/Left
+				moveX(-2);
+				moveY(2);
+			} case 4: {					// Left
+				moveX(-2);
+			} case 5: {					// Down/Left
+				moveX(-2);
+				moveY(-2);;
+			} case 6: {					// Down
+				moveY(-2);
+			} case 7: {					// Down/Right
+				moveX(2);
+				moveY(-2);
+			}
+		}
 		
 	}
-	
+
+	// --------------------------- Movement ---------------------------
+	private void moveX(int x){
+		this.x_coord = ((((x_coord + x)%Params.world_width)+Params.world_width)%Params.world_width);
+	}
+
+	private void moveY(int x){
+		this.y_coord = ((((y_coord + x)%Params.world_height)+Params.world_height)%Params.world_height);
+	}
+
+	// ---------------------------------------------------------------
+
 	protected final void reproduce(Critter offspring, int direction) {
+		if(this.energy >= Params.min_reproduce_energy){
+			offspring.energy = (this.energy/2);					// Offspring energy half parent energy rounded down
+			offspring.energy += Params.walk_energy_cost;		// So that we can play offspring without messing up energy
+			offspring.x_coord = this.x_coord;					// Child will take location of parent, then "walk"...
+			offspring.y_coord = this.y_coord;					// ...to direction indicated.
+			offspring.walk(direction);							// Place offspring adjacent to parent
+			this.energy = ((this.energy/2)+(this.energy%2));	// Parent energy divided by two and rounded up
+		} else { return; }										// Parent did not have enough reproduction energy
 	}
 
 	public abstract void doTimeStep();
@@ -76,6 +162,27 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+
+		Class<?> temp;
+		Constructor<?> constructor;
+		Object instanceOfMyCritter = null;
+
+		try {
+			temp = Class.forName("assignment4." + critter_class_name); 	// Class object of specified name
+		} catch (ClassNotFoundException e) {
+			throw new InvalidCritterException(critter_class_name);
+		}
+		try {
+			constructor = temp.getConstructor();
+			instanceOfMyCritter = constructor.newInstance();
+		} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			// Throw some sort of exception or something here <*><*>
+		}
+		Critter me = (Critter)instanceOfMyCritter;
+		me.x_coord = getRandomInt(Params.world_width-1);
+		me.y_coord = getRandomInt(Params.world_height-1);
+		me.energy = Params.start_energy;
+		population.add(me);
 	}
 	
 	/**
@@ -178,9 +285,12 @@ public abstract class Critter {
 	}
 	
 	public static void displayWorld() {
-		int width = 5;
-		int height = 5;
+		int width = Params.world_width;
+		int height = Params.world_height;
 		String [][] world = new String[height+2][width+2];
+		for(String[] row :world) {
+			Arrays.fill(row, " ");
+		}
 		world [0][0] = "+";
 		world[0][width+1] ="+";
 		world[height+1][0] = "+";
@@ -194,10 +304,12 @@ public abstract class Critter {
 			world[i][0]="|";
 			world[i][width+1] = "|";
 		}
-		for(int i=0;i<width+2;i++) {
-			for(int j=0;j<height+2;j++) {
+		for(int i = 0; i < population.size(); i++){
+            world[population.get(i).x_coord +1][population.get(i).y_coord +1] = population.get(i).toString();
+        }
+		for(int i=0;i<height+2;i++) {
+			for(int j=0;j<width+2;j++) {
 				System.out.print(world[i][j]);
-				System.out.print("\t");
 			}
 			System.out.println("");
 		}

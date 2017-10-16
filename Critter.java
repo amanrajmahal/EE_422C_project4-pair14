@@ -51,15 +51,98 @@ public abstract class Critter {
 	
 	private int x_coord;
 	private int y_coord;
+
+	// ------------------ Gets and Sets ------------------
+	public int getXcoord(){
+		return this.x_coord;
+	}
+
+	public void setXcoord(int x){
+		this.x_coord = x;
+	}
+
+	public int getYcoord(){
+		return this.y_coord;
+	}
+
+	public void setYcoord(int y){
+		this.y_coord = y;
+	}
+	//----------------------------------------------------
 	
 	protected final void walk(int direction) {
+		switch(direction){
+			case 0:{					// Right
+				moveX(1);
+			} case 1: {					// Up/Right
+				moveX(1);
+				moveY(1);
+			} case 2: {					// Up
+				moveY(1);
+			} case 3: {					// Up/Left
+				moveX(-1);
+				moveY(1);
+			} case 4: {					// Left
+				moveX(-1);
+			} case 5: {					// Down/Left
+				moveX(-1);
+				moveY(-1);;
+			} case 6: {					// Down
+				moveY(-1);
+			} case 7: {					// Down/Right
+				moveX(1);
+				moveY(-1);
+			}
+		}
 	}
 	
 	protected final void run(int direction) {
+		switch(direction){
+			case 0:{					// Right
+				moveX(2);
+			} case 1: {					// Up/Right
+				moveX(2);
+				moveY(2);
+			} case 2: {					// Up
+				moveY(2);
+			} case 3: {					// Up/Left
+				moveX(-2);
+				moveY(2);
+			} case 4: {					// Left
+				moveX(-2);
+			} case 5: {					// Down/Left
+				moveX(-2);
+				moveY(-2);;
+			} case 6: {					// Down
+				moveY(-2);
+			} case 7: {					// Down/Right
+				moveX(2);
+				moveY(-2);
+			}
+		}
 		
 	}
-	
+
+	// --------------------------- Movement ---------------------------
+	private void moveX(int x){
+		this.x_coord = ((((x_coord + x)%Params.world_width)+Params.world_width)%Params.world_width);
+	}
+
+	private void moveY(int x){
+		this.y_coord = ((((y_coord + x)%Params.world_height)+Params.world_height)%Params.world_height);
+	}
+
+	// ---------------------------------------------------------------
+
 	protected final void reproduce(Critter offspring, int direction) {
+		if(this.energy >= Params.min_reproduce_energy){
+			offspring.energy = (this.energy/2);					// Offspring energy half parent energy rounded down
+			offspring.energy += Params.walk_energy_cost;		// So that we can play offspring without messing up energy
+			offspring.x_coord = this.x_coord;					// Child will take location of parent, then "walk"...
+			offspring.y_coord = this.y_coord;					// ...to direction indicated.
+			offspring.walk(direction);							// Place offspring adjacent to parent
+			this.energy = ((this.energy/2)+(this.energy%2));	// Parent energy divided by two and rounded up
+		} else { return; }										// Parent did not have enough reproduction energy
 	}
 
 	public abstract void doTimeStep();
@@ -76,6 +159,7 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+
 	}
 	
 	/**

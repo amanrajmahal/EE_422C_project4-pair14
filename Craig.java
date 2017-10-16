@@ -19,6 +19,8 @@ public class Craig extends Critter {
 			genes[k] = GENE_TOTAL / 8;
 		}
 		dir = Critter.getRandomInt(8);
+		super.setXcoord(Critter.getRandomInt(7));
+        super.setYcoord(Critter.getRandomInt(7));
 	}
 	
 	public boolean fight(String not_used) { return true; }

@@ -25,8 +25,8 @@ import java.util.List;
 
 public abstract class Critter {
 	private static String assignment4;
-	private	static List<Critter> population = new java.util.ArrayList<Critter>();
-	private static List<Critter> babies = new java.util.ArrayList<Critter>();
+	public	static List<Critter> population = new java.util.ArrayList<Critter>();
+	public static List<Critter> babies = new java.util.ArrayList<Critter>();
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -159,6 +159,9 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+		
+		Craig temp = new Craig();
+		population.add(temp);
 
 	}
 	
@@ -262,9 +265,12 @@ public abstract class Critter {
 	}
 	
 	public static void displayWorld() {
-		int width = 5;
-		int height = 5;
+		int width = Params.world_width;
+		int height = Params.world_height;
 		String [][] world = new String[height+2][width+2];
+		for(String[] row :world) {
+			Arrays.fill(row, " ");
+		}
 		world [0][0] = "+";
 		world[0][width+1] ="+";
 		world[height+1][0] = "+";
@@ -278,10 +284,12 @@ public abstract class Critter {
 			world[i][0]="|";
 			world[i][width+1] = "|";
 		}
-		for(int i=0;i<width+2;i++) {
-			for(int j=0;j<height+2;j++) {
+		for(int i = 0; i < population.size(); i++){
+            world[population.get(i).x_coord +1][population.get(i).y_coord +1] = population.get(i).toString();
+        }
+		for(int i=0;i<height+2;i++) {
+			for(int j=0;j<width+2;j++) {
 				System.out.print(world[i][j]);
-				System.out.print("\t");
 			}
 			System.out.println("");
 		}

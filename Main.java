@@ -12,6 +12,7 @@ package assignment4;
  * Fall 2016
  */
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.*;
 
@@ -26,23 +27,34 @@ public class Main {
     static Scanner kb;	// scanner connected to keyboard input, or input file
     private static String inputFile;	// input file, used instead of keyboard input if specified
     static ByteArrayOutputStream testOutputString;	// if test specified, holds all console output
-    private static String assignment4;	// package of Critter file.  Critter cannot be in default pkg.
+    private static String myPackage;	// package of Critter file.  Critter cannot be in default pkg.
     private static boolean DEBUG = false; // Use it or not, as you wish!
     static PrintStream old = System.out;	// if you want to restore output to console
 
 
     // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
     static {
-        assignment4 = Critter.class.getPackage().toString().split(" ")[1];
+        myPackage = Critter.class.getPackage().toString().split(" ")[1];
     }
 
     /**
      * Main method.
      * @param args args can be empty.  If not empty, provide two parameters -- the first is a file name, 
      * and the second is test (for test output, where all output to be directed to a String), or nothing.
+     * @throws InvalidCritterException 
      */
-    public static void main(String[] args) { 
+    public static void main(String[] args) throws InvalidCritterException { 
     	Critter.displayWorld();
+
+        addCritter();
+        Critter.displayWorld();        
+        Craig.runStats(Critter.getInstances("Craig"));
+        Critter.doEncounters();
+        Craig.runStats(Critter.getInstances("Craig"));
+
+
+
+
         if (args.length != 0) {
             try {
                 inputFile = args[0];
@@ -71,10 +83,33 @@ public class Main {
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
         
-        // System.out.println("GLHF");
+
+        //ArrayList<String> input = new ArrayList<String>();
+        //getInput(kb);
+        
+        
         
         /* Write your code above */
         System.out.flush();
 
     }
+
+    public static ArrayList<String> getInput(Scanner keyboard){
+        ArrayList<String> result = new ArrayList<String>();
+        String input = keyboard.nextLine();
+        
+        
+        String[] arr = input.split(" ");
+        
+        for(int i =0; i<arr.length;i++){
+            result.add(i,arr[i]);
+        }
+         return result;
+    }
+    public static void addCritter() throws InvalidCritterException{
+        for(int i =0;i<50;i++){
+            Critter.makeCritter("Craig");
+        }
+    }
+    
 }

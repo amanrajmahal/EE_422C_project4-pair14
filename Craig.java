@@ -19,10 +19,6 @@ public class Craig extends Critter {
 			genes[k] = GENE_TOTAL / 8;
 		}
 		dir = Critter.getRandomInt(8);
-		//-------------------------------------------
-		this.setXcoord(Critter.getRandomInt(7));
-		this.setYcoord(Critter.getRandomInt(7));
-		//-------------------------------------------
 	}
 	
 	public boolean fight(String not_used) { return true; }
@@ -30,21 +26,21 @@ public class Craig extends Critter {
 	@Override
 	public void doTimeStep() {
 		/* take one step forward */
-		walk(dir);												// Move craig in direction "dir" (0-7)
+		walk(dir);
 		
 		if (getEnergy() > 150) {
-			Craig child = new Craig();							// New offspring
+			Craig child = new Craig();
 			for (int k = 0; k < 8; k += 1) {
-				child.genes[k] = this.genes[k];					// Offspring gets parent genes
+				child.genes[k] = this.genes[k];
 			}
-			int g = Critter.getRandomInt(8);				// Randomize g
-			while (child.genes[g] == 0) {						// while child gene is zero at index g
-				g = Critter.getRandomInt(8);				// look non-zero gene index
+			int g = Critter.getRandomInt(8);
+			while (child.genes[g] == 0) {
+				g = Critter.getRandomInt(8);
 			}
-			child.genes[g] -= 1;								// Decrement offspring gene
-			g = Critter.getRandomInt(8);					// Randomize g
-			child.genes[g] += 1;								// Increment gene at [g]
-			reproduce(child, Critter.getRandomInt(8));		// Calls reproduce
+			child.genes[g] -= 1;
+			g = Critter.getRandomInt(8);
+			child.genes[g] += 1;
+			reproduce(child, Critter.getRandomInt(8));
 		}
 		
 		/* pick a new direction based on our genes */

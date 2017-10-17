@@ -72,6 +72,8 @@ public abstract class Critter {
 	//----------------------------------------------------
 	
 	protected final void walk(int direction) {
+		
+		this.energy = this.energy - Params.walk_energy_cost;
 		switch(direction){
 			case 0:{					// Right
 				moveX(1);
@@ -98,6 +100,8 @@ public abstract class Critter {
 	}
 	
 	protected final void run(int direction) {
+		
+	this.energy = this.energy - Params.run_energy_cost;
 		switch(direction){
 			case 0:{					// Right
 				moveX(2);
@@ -141,8 +145,9 @@ public abstract class Critter {
 			offspring.energy += Params.walk_energy_cost;		// So that we can play offspring without messing up energy
 			offspring.x_coord = this.x_coord;					// Child will take location of parent, then "walk"...
 			offspring.y_coord = this.y_coord;					// ...to direction indicated.
-			offspring.walk(direction);							// Place offspring adjacent to parent
+										
 			this.energy = ((this.energy/2)+(this.energy%2));	// Parent energy divided by two and rounded up
+			offspring.walk(direction);	// Place offspring adjacent to parent						
 		} else { return; }										// Parent did not have enough reproduction energy
 	}
 

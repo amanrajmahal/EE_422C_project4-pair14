@@ -28,6 +28,7 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	public static List<Critter> babies = new java.util.ArrayList<Critter>();
+	private boolean isDead;
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -120,7 +121,7 @@ public abstract class Critter {
 				moveY(-2);;
 			} case 6: {					// Down
 				moveY(-2);
-			} case 7: {					// Down/Right
+			} case 7: {					// Down//Right
 				moveX(2);
 				moveY(-2);
 			}
@@ -145,7 +146,7 @@ public abstract class Critter {
 			offspring.energy += Params.walk_energy_cost;		// So that we can play offspring without messing up energy
 			offspring.x_coord = this.x_coord;					// Child will take location of parent, then "walk"...
 			offspring.y_coord = this.y_coord;					// ...to direction indicated.
-										
+			babies.add(offspring);							//
 			this.energy = ((this.energy/2)+(this.energy%2));	// Parent energy divided by two and rounded up
 			offspring.walk(direction);	// Place offspring adjacent to parent						
 		} else { return; }										// Parent did not have enough reproduction energy
@@ -188,6 +189,7 @@ public abstract class Critter {
 		me.x_coord = getRandomInt(Params.world_width-1);
 		me.y_coord = getRandomInt(Params.world_height-1);
 		me.energy = Params.start_energy;
+		me.isDead = false;
 		population.add(me);
 		
 		
@@ -301,11 +303,28 @@ public abstract class Critter {
 	public static void clearWorld() {
 		// Complete this method.
 	}
-	
-	public static void worldTimeStep() {
-		// Complete this method.
-	}
+public static void worldTimeStep() {
+        for(Critter obj : population){
+            obj.doTimeStep();                                // Perform all individual time steps
+        }
+        doEncounters();
+        updateRestEnergy();
+        removeDeadCritters();
+        addBabies();
+        // Need to Refresh Algae Here
+    }
 
+    private static void addBabies(){
+        population.addAll(babies);
+        babies.clear();
+    }
+
+    private static void updateRestEnergy(){
+        for(Critter obj : population){
+            obj.energy -= Params.rest_energy_cost;
+             
+        }
+    }
 	// change to private before submission
 	public static void doEncounters(){
 
@@ -314,42 +333,69 @@ public abstract class Critter {
 			for(int j=0; j<population.size();j++){
 
 				if((population.get(i).x_coord == population.get(j).x_coord)&&
-					(population.get(i).y_coord == population.get(j).y_coord)&&(i!=j)){
-
-					// make a fight happen
-
-					if(population.get(i).fight(population.get(j).toString())){
-						if(population.get(j).fight(population.get(i).toString())){
-							// both of them want to fight
-							int roll_i = getRandomInt(population.get(i).energy);
-							int roll_j = getRandomInt(population.get(j).energy);
-							if(roll_i>=roll_j){
-								// i gets half of the energy
-								population.get(i).energy+= ((population.get(j).energy)/2);
-								population.remove(j);
-								j--;
-							}
-							else{
-								population.get(j).energy += ((population.get(j).energy)/2);
-								population.remove(i);
-								i--;
-								break;
-							}
-						}
-					}
+					(population.get(i).y_coord == population.get(j).y_coord)&&(i!=j)&&
+					(!(population.get(i).isDead) &&(!(population.get(j).isDead)))){
+					doFight(population.get(i),population.get(j));
 				}
-
 			}
 		}
-
-	
-		
-
-
-
-		
-
 	}
+
+	private static void doFight(Critter a, Critter b){
+		int roll_a; int roll_b;
+		
+		boolean a_wants_to_fight = a.fight(b.toString());
+		boolean b_wants_to_fight = b.fight(a.toString());
+
+		if((a_wants_to_fight&&b_wants_to_fight)&&(!a.isDead)&&(!b.isDead)){
+			 roll_a = getRandomInt(a.energy);
+			 roll_b = getRandomInt(b.energy);
+			makeFightHappen(a,b, roll_a,roll_b);				
+		}
+		if((!a_wants_to_fight)&&(b_wants_to_fight)&&(!a.isDead)&&(!b.isDead)){
+			roll_a =0;
+			roll_b =getRandomInt(b.energy);
+			makeFightHappen(a,b, roll_a,roll_b);
+		}
+		if((a_wants_to_fight)&&(!b_wants_to_fight)&&(!a.isDead)&&(!b.isDead)){
+			roll_a = getRandomInt(a.energy);
+			roll_b =0;
+			makeFightHappen(a,b, roll_a,roll_b);
+		}
+		if((!a_wants_to_fight)&&(!b_wants_to_fight)&&(!a.isDead)&&(!b.isDead)){
+			roll_a =0;
+			roll_b =0;
+			makeFightHappen(a,b, roll_a,roll_b);
+		}
+	}
+	private static void makeFightHappen(Critter a, Critter b, int roll_a, int roll_b){
+
+		if((a.x_coord == b.x_coord)&&(a.y_coord==b.y_coord)){
+
+			if(roll_a>=roll_b){
+					// i gets half of the energy
+					a.energy+= ((b.energy)/2);
+					b.energy = -1;
+					b.isDead = true;								
+				}
+				else{
+					b.energy += ((a.energy)/2);
+					a.energy = -1;
+					a.isDead = true;
+			}
+		}
+	}// change from public to private
+	
+	public static void removeDeadCritters() {
+		for(int i =0;i<population.size();i++) {
+			
+			if(population.get(i).isDead==true) {
+				population.remove(i);
+				i--;
+			}			
+		}
+	}
+
 
 
 	

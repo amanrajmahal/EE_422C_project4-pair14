@@ -43,58 +43,49 @@ public class Main {
      * and the second is test (for test output, where all output to be directed to a String), or nothing.
      * @throws InvalidCritterException 
      */
-    public static void main(String[] args) throws InvalidCritterException { 
-    	Critter.displayWorld();
-        addCritter();
-        Critter.displayWorld();        
-        Craig.runStats(Critter.getInstances("Craig"));
-        //Algae.runStats(Critter.getInstances("Algae"));
-        Critter.worldTimeStep();
-        Critter.doEncounters();
-        Critter.displayWorld();
-        Craig.runStats(Critter.getInstances("Craig"));
-        //Algae.runStats(Critter.getInstances("Algae"));
+    public static void main(String[] args) throws InvalidCritterException {
 
 
+        if(DEBUG){
 
-
-/*        if (args.length != 0) {
-            try {
-                inputFile = args[0];
-                kb = new Scanner(new File(inputFile));			
-            } catch (FileNotFoundException e) {
-                System.out.println("USAGE: java Main OR java Main <input file> <test output>");
-                e.printStackTrace();
-            } catch (NullPointerException e) {
-                System.out.println("USAGE: java Main OR java Main <input file>  <test output>");
-            }
-            if (args.length >= 2) {
-                if (args[1].equals("test")) { // if the word "test" is the second argument to java
-                    // Create a stream to hold the output
-                    testOutputString = new ByteArrayOutputStream();
-                    PrintStream ps = new PrintStream(testOutputString);
-                    // Save the old System.out.
-                    old = System.out;
-                    // Tell Java to use the special stream; all console output will be redirected here from now
-                    System.setOut(ps);
+        } else {
+            if (args.length != 0) {
+                try {
+                    inputFile = args[0];
+                    kb = new Scanner(new File(inputFile));
+                } catch (FileNotFoundException e) {
+                    System.out.println("USAGE: java Main OR java Main <input file> <test output>");
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    System.out.println("USAGE: java Main OR java Main <input file>  <test output>");
                 }
+                if (args.length >= 2) {
+                    if (args[1].equals("test")) { // if the word "test" is the second argument to java
+                        // Create a stream to hold the output
+                        testOutputString = new ByteArrayOutputStream();
+                        PrintStream ps = new PrintStream(testOutputString);
+                        // Save the old System.out.
+                        old = System.out;
+                        // Tell Java to use the special stream; all console output will be redirected here from now
+                        System.setOut(ps);
+                    }
+                }
+            } else { // if no arguments to main
+                kb = new Scanner(System.in); // use keyboard and console
             }
-        } else { // if no arguments to main
-            kb = new Scanner(System.in); // use keyboard and console
-        }
 
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
-        
 
-        //ArrayList<String> input = new ArrayList<String>();
-        //getInput(kb);
+
+            ArrayList<String> input = new ArrayList<String>();
+            getInput(kb);
         
         
         
         /* Write your code above */
-//        System.out.flush();
-
+            System.out.flush();
+        }
     }
 
     public static ArrayList<String> getInput(Scanner keyboard){
@@ -110,10 +101,9 @@ public class Main {
          return result;
     }
     public static void addCritter() throws InvalidCritterException{
-        for(int i =0;i<50;i++){
+        for(int i =0;i<10;i++){
             Critter.makeCritter("Craig");
             Critter.makeCritter("Algae");
         }
     }
-    
 }

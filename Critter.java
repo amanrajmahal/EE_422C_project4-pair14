@@ -52,24 +52,6 @@ public abstract class Critter {
 	
 	private int x_coord;
 	private int y_coord;
-
-	// ------------------ Gets and Sets ------------------
-	public int getXcoord(){
-		return this.x_coord;
-	}
-
-	public void setXcoord(int x){
-		this.x_coord = x;
-	}
-
-	public int getYcoord(){
-		return this.y_coord;
-	}
-
-	public void setYcoord(int y){
-		this.y_coord = y;
-	}
-	//----------------------------------------------------
 	
 	protected final void walk(int direction) {
 		
@@ -147,7 +129,8 @@ public abstract class Critter {
 			offspring.y_coord = this.y_coord;					// ...to direction indicated.
 										
 			this.energy = ((this.energy/2)+(this.energy%2));	// Parent energy divided by two and rounded up
-			offspring.walk(direction);	// Place offspring adjacent to parent						
+			offspring.walk(direction);							// Place offspring adjacent to parent
+			babies.add(offspring);
 		} else { return; }										// Parent did not have enough reproduction energy
 	}
 
@@ -184,11 +167,11 @@ public abstract class Critter {
 			
 		}
 		
-		Critter me = (Critter)instanceOfMyCritter;
-		me.x_coord = getRandomInt(Params.world_width-1);
-		me.y_coord = getRandomInt(Params.world_height-1);
-		me.energy = Params.start_energy;
-		population.add(me);
+		Critter newCritter = (Critter)instanceOfMyCritter;
+		newCritter.x_coord = getRandomInt(Params.world_width-1);
+		newCritter.y_coord = getRandomInt(Params.world_height-1);
+		newCritter.energy = Params.start_energy;
+		population.add(newCritter);
 		
 		
 
@@ -299,21 +282,30 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
-		// Complete this method.
+		babies.clear();
+		population.clear();
 	}
 	
 	public static void worldTimeStep() {
 		for(Critter obj : population){
-			obj.doTimeStep();			// Perform all individual time steps
-			if(obj.energy <= 0){ population.remove(obj); }			// Remove "dead" critters.
+			obj.doTimeStep();								// Perform all individual time steps
+			if(obj.energy <= 0){ population.remove(obj); }	// Remove "dead" critters.
 		}
 		doEncounters();
 		updateRestEnergy();
+		addBabies();
+		// Need to Refresh Algae Here
+	}
+
+	private static void addBabies(){
+		population.addAll(babies);
+		babies.clear();
 	}
 
 	private static void updateRestEnergy(){
 		for(Critter obj : population){
 			obj.energy -= Params.rest_energy_cost;
+			if(obj.energy <= 0){ population.remove(obj); }
 		}
 	}
 
@@ -323,12 +315,6 @@ public abstract class Critter {
 	// getting critters who can have a possible fight
 	for(int i = 0; i< population.size();i++){										// Check each critter
 			for(int j=0; j<population.size();j++){									// against each other critter
-				/* --------- Algae Encounters --------- */
-				if(population.get(i).toString() == "@"){
-
-					continue;
-				}
-				/* ------------------------------------ */
 				if((population.get(i).x_coord == population.get(j).x_coord)&&		// Are both x_coord...
 					(population.get(i).y_coord == population.get(j).y_coord)&&		// and y_coord are the same...
 						(i!=j)){													// critters can't fight themselves
@@ -389,7 +375,5 @@ public abstract class Critter {
 			}
 			System.out.println("");
 		}
-		
-		
 	}
 }

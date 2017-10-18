@@ -13,12 +13,10 @@ package assignment4;
  */
 
 
-import org.omg.CORBA.DynAnyPackage.Invalid;
-
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.lang.reflect.*;
 
 /* see the PDF for descriptions of the methods and fields in this class
  * you may add fields, methods or inner classes to Critter ONLY if you make your additions private
@@ -27,13 +25,13 @@ import java.lang.reflect.*;
 
 
 public abstract class Critter {
-	private static String assignment4;
-	public	static List<Critter> population = new java.util.ArrayList<Critter>();
+	private static String myPackage;
+	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	public static List<Critter> babies = new java.util.ArrayList<Critter>();
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
-		assignment4 = Critter.class.getPackage().toString().split(" ")[1];
+		myPackage = Critter.class.getPackage().toString().split(" ")[1];
 	}
 	
 	private static java.util.Random rand = new java.util.Random();
@@ -74,6 +72,8 @@ public abstract class Critter {
 	//----------------------------------------------------
 	
 	protected final void walk(int direction) {
+		
+		this.energy = this.energy - Params.walk_energy_cost;
 		switch(direction){
 			case 0:{					// Right
 				moveX(1);
@@ -100,6 +100,8 @@ public abstract class Critter {
 	}
 	
 	protected final void run(int direction) {
+		
+	this.energy = this.energy - Params.run_energy_cost;
 		switch(direction){
 			case 0:{					// Right
 				moveX(2);
@@ -143,8 +145,9 @@ public abstract class Critter {
 			offspring.energy += Params.walk_energy_cost;		// So that we can play offspring without messing up energy
 			offspring.x_coord = this.x_coord;					// Child will take location of parent, then "walk"...
 			offspring.y_coord = this.y_coord;					// ...to direction indicated.
-			offspring.walk(direction);							// Place offspring adjacent to parent
+										
 			this.energy = ((this.energy/2)+(this.energy%2));	// Parent energy divided by two and rounded up
+			offspring.walk(direction);	// Place offspring adjacent to parent						
 		} else { return; }										// Parent did not have enough reproduction energy
 	}
 
@@ -162,27 +165,33 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
-
-		Class<?> temp;
-		Constructor<?> constructor;
+		
+		Class<?> myCritter = null;
 		Object instanceOfMyCritter = null;
+		Constructor<?> constructor = null;
+		
 
 		try {
-			temp = Class.forName("assignment4." + critter_class_name); 	// Class object of specified name
+			myCritter = Class.forName(myPackage + "."+critter_class_name); 	// Class object of specified name
 		} catch (ClassNotFoundException e) {
 			throw new InvalidCritterException(critter_class_name);
 		}
+		
 		try {
-			constructor = temp.getConstructor();
+			constructor = myCritter.getConstructor();		// No-parameter constructor object
 			instanceOfMyCritter = constructor.newInstance();
-		} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-			// Throw some sort of exception or something here <*><*>
+		} catch(Exception e) {
+			
 		}
+		
 		Critter me = (Critter)instanceOfMyCritter;
 		me.x_coord = getRandomInt(Params.world_width-1);
 		me.y_coord = getRandomInt(Params.world_height-1);
 		me.energy = Params.start_energy;
 		population.add(me);
+		
+		
+
 	}
 	
 	/**
@@ -193,6 +202,19 @@ public abstract class Critter {
 	 */
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
+		Class<?> myCritter = null;
+		try {
+			myCritter = Class.forName(myPackage + "."+critter_class_name); 	// Class object of specified name
+		} catch (ClassNotFoundException e) {
+			throw new InvalidCritterException(critter_class_name);
+		}
+	
+		for(Object obj : population){
+			
+			if((myCritter.isInstance(obj))) {
+				result.add((Critter)obj);
+			}
+		}
 	
 		return result;
 	}
@@ -281,8 +303,62 @@ public abstract class Critter {
 	}
 	
 	public static void worldTimeStep() {
-		// Complete this method.
+		for(Critter obj : population){
+			obj.doTimeStep();			// Perform all individual time steps
+			if(obj.energy <= 0){ population.remove(obj); }			// Remove "dead" critters.
+		}
+		doEncounters();
+		updateRestEnergy();
 	}
+
+	private static void updateRestEnergy(){
+		for(Critter obj : population){
+			obj.energy -= Params.rest_energy_cost;
+		}
+	}
+
+	// change to private before submission
+	public static void doEncounters(){
+
+	// getting critters who can have a possible fight
+	for(int i = 0; i< population.size();i++){										// Check each critter
+			for(int j=0; j<population.size();j++){									// against each other critter
+				/* --------- Algae Encounters --------- */
+				if(population.get(i).toString() == "@"){
+
+					continue;
+				}
+				/* ------------------------------------ */
+				if((population.get(i).x_coord == population.get(j).x_coord)&&		// Are both x_coord...
+					(population.get(i).y_coord == population.get(j).y_coord)&&		// and y_coord are the same...
+						(i!=j)){													// critters can't fight themselves
+
+					/* --------- Two Fighters --------- */
+					// make a fight happen
+					if(population.get(i).fight(population.get(j).toString())){		// This is slightly confusing <???>
+						if(population.get(j).fight(population.get(i).toString())){	//
+							// both of them want to fight
+							int roll_i = getRandomInt(population.get(i).energy);
+							int roll_j = getRandomInt(population.get(j).energy);
+							if(roll_i>=roll_j){
+								// i gets half of the energy
+								population.get(i).energy+= ((population.get(j).energy)/2);
+								population.remove(j);
+								j--;
+							} else {
+								population.get(j).energy += ((population.get(j).energy)/2);
+								population.remove(i);
+								i--;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 	
 	public static void displayWorld() {
 		int width = Params.world_width;
@@ -305,7 +381,7 @@ public abstract class Critter {
 			world[i][width+1] = "|";
 		}
 		for(int i = 0; i < population.size(); i++){
-            world[population.get(i).x_coord +1][population.get(i).y_coord +1] = population.get(i).toString();
+            world[population.get(i).y_coord +1][population.get(i).x_coord +1] = population.get(i).toString();
         }
 		for(int i=0;i<height+2;i++) {
 			for(int j=0;j<width+2;j++) {

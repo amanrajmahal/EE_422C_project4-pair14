@@ -26,21 +26,21 @@ public class Craig extends Critter {
 	@Override
 	public void doTimeStep() {
 		/* take one step forward */
-		walk(dir);												// Move craig in direction "dir" (0-7)
+		walk(dir);
 		
-		if (getEnergy() > 150) {
-			Craig child = new Craig();							// New offspring
-			for (int k = 0; k < 8; k += 1) {
-				child.genes[k] = this.genes[k];					// Offspring gets parent genes
+		if (getEnergy() > 150) {								// check if can reproduce
+			Craig child = new Craig();							// make new craig child
+			for (int k = 0; k < 8; k += 1) {					// set genes
+				child.genes[k] = this.genes[k];
 			}
-			int g = Critter.getRandomInt(8);				// Randomize g
-			while (child.genes[g] == 0) {						// while child gene is zero at index g
-				g = Critter.getRandomInt(8);				// look non-zero gene index
+			int g = Critter.getRandomInt(8);				// Change random gene
+			while (child.genes[g] == 0) {
+				g = Critter.getRandomInt(8);
 			}
-			child.genes[g] -= 1;								// Decrement offspring gene
-			g = Critter.getRandomInt(8);					// Randomize g
-			child.genes[g] += 1;								// Increment gene at [g]
-			reproduce(child, Critter.getRandomInt(8));		// Calls reproduce
+			child.genes[g] -= 1;
+			g = Critter.getRandomInt(8);
+			child.genes[g] += 1;
+			reproduce(child, Critter.getRandomInt(8));		// Send Craig child to reproduce
 		}
 		
 		/* pick a new direction based on our genes */

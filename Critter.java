@@ -103,24 +103,32 @@ public abstract class Critter {
 		switch(direction){
 			case 0:{					// Right
 				moveX(1);
+				break;
 			} case 1: {					// Up/Right
 				moveX(1);
 				moveY(1);
+				break;
 			} case 2: {					// Up
 				moveY(1);
+				break;
 			} case 3: {					// Up/Left
 				moveX(-1);
 				moveY(1);
+				break;
 			} case 4: {					// Left
 				moveX(-1);
+				break;
 			} case 5: {					// Down/Left
 				moveX(-1);
 				moveY(-1);
+				break;
 			} case 6: {					// Down
 				moveY(-1);
+				break;
 			} case 7: {					// Down/Right
 				moveX(1);
 				moveY(-1);
+				break;
 			}
 		}
 	}
@@ -156,24 +164,32 @@ public abstract class Critter {
 		switch(direction){
 			case 0:{					// Right
 				moveX(2);
+				break;
 			} case 1: {					// Up/Right
 				moveX(2);
 				moveY(2);
+				break;
 			} case 2: {					// Up
 				moveY(2);
+				break;
 			} case 3: {					// Up/Left
 				moveX(-2);
 				moveY(2);
+				break;
 			} case 4: {					// Left
 				moveX(-2);
+				break;
 			} case 5: {					// Down/Left
 				moveX(-2);
 				moveY(-2);
+				break;
 			} case 6: {					// Down
 				moveY(-2);
+				break;
 			} case 7: {					// Down//Right
 				moveX(2);
 				moveY(-2);
+				break;
 			}
 		}
 	}
@@ -517,24 +533,32 @@ public static void worldTimeStep() throws InvalidCritterException{
 		switch(direction){
 			case 0:{					// Right
 				projected_location_x =  projectedMoveX(1);
+				break;
 			} case 1: {					// Up/Right
 				projected_location_x =  projectedMoveX(1);
 				projected_location_y = projectedMoveY(1);
+				break;
 			} case 2: {					// Up
 				projected_location_y = projectedMoveY(1);
+				break;
 			} case 3: {					// Up/Left
 				projected_location_x =  projectedMoveX(-1);
 				projected_location_y = projectedMoveY(1);
+				break;
 			} case 4: {					// Left
 				projected_location_x =  projectedMoveX(-1);
+				break;
 			} case 5: {					// Down/Left
 				projected_location_x =  projectedMoveX(-1);
 				projected_location_y = projectedMoveY(-1);
+				break;
 			} case 6: {					// Down
 				projected_location_y = projectedMoveY(-1);
+				break;
 			} case 7: {					// Down/Right
 				projected_location_x =  projectedMoveX(1);
 				projected_location_y = projectedMoveY(-1);
+				break;
 			}
 		}
 
@@ -549,24 +573,32 @@ public static void worldTimeStep() throws InvalidCritterException{
 		switch(direction){
 			case 0:{					// Right
 				projected_location_x  = projectedMoveX(2);
+				break;
 			} case 1: {					// Up/Right
 				projected_location_x  = projectedMoveX(2);
 				projected_location_y = projectedMoveY(2);
+				break;
 			} case 2: {					// Up
 				projected_location_y = projectedMoveY(2);
+				break;
 			} case 3: {					// Up/Left
 				projected_location_x  = projectedMoveX(-2);
 				projected_location_y = projectedMoveY(2);
+				break;
 			} case 4: {					// Left
 				projected_location_x  = projectedMoveX(-2);
+				break;
 			} case 5: {					// Down/Left
 				projected_location_x  = projectedMoveX(-2);
 				projected_location_y = projectedMoveY(-2);
+				break;
 			} case 6: {					// Down
 				projected_location_y = projectedMoveY(-2);
+				break;
 			} case 7: {					// Down//Right
 				projected_location_x  = projectedMoveX(2);
 				projected_location_y = projectedMoveY(-2);
+				break;
 			}
 		}
 		return isOccupied(projected_location_x,projected_location_y);

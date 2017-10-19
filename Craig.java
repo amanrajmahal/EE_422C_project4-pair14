@@ -28,19 +28,19 @@ public class Craig extends Critter {
 		/* take one step forward */
 		walk(dir);
 		
-		if (getEnergy() > 150) {								// check if can reproduce
-			Craig child = new Craig();							// make new craig child
-			for (int k = 0; k < 8; k += 1) {					// set genes
+		if (getEnergy() > 150) {
+			Craig child = new Craig();
+			for (int k = 0; k < 8; k += 1) {
 				child.genes[k] = this.genes[k];
 			}
-			int g = Critter.getRandomInt(8);				// Change random gene
+			int g = Critter.getRandomInt(8);
 			while (child.genes[g] == 0) {
 				g = Critter.getRandomInt(8);
 			}
 			child.genes[g] -= 1;
 			g = Critter.getRandomInt(8);
 			child.genes[g] += 1;
-			reproduce(child, Critter.getRandomInt(8));		// Send Craig child to reproduce
+			reproduce(child, Critter.getRandomInt(8));
 		}
 		
 		/* pick a new direction based on our genes */

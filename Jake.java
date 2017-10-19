@@ -2,7 +2,6 @@ package assignment4;
 
 public class Jake extends Critter {
     private int dir;
-
     public Jake() {
 
     }
@@ -28,17 +27,17 @@ public class Jake extends Critter {
                 Params.rest_energy_cost+                                // ...and rest energy...
                 Params.start_energy)){                                  // ...and leftover energy.
                 Jake offspring1 = new Jake();
-                Jake offspring2 = new Jake();                           // if reproduce, make 2
+                //Jake offspring2 = new Jake();                           // if reproduce, make 2
                 reproduce(offspring1, Critter.getRandomInt(7));
-                reproduce(offspring2, Critter.getRandomInt(7));
+               // reproduce(offspring2, Critter.getRandomInt(7));
         }
     }
 
     @Override
     public boolean fight(String oponent) {
-        if((oponent.equals("@")) || ((this.getEnergy() >= 100) && !oponent.equals("J"))){ return true; }
+        if(!oponent.equals("J")){ return true; }    // Fights everything except other Jakes
         else{
-            switch (dir) {                // Tries to go back the way it came.
+            switch (dir) {                          // Tries to go back the way it came.
                 case 0: { dir = 4; }
                 case 1: { dir = 5; }
                 case 2: { dir = 6; }
@@ -48,14 +47,7 @@ public class Jake extends Critter {
                 case 6: { dir = 2; }
                 case 7: { dir = 3; }
             }
-            if(!hasMoved() && isLocationFreeWalk(dir)) {
-                walk(dir);
-                return false;
-            } else {
-                if((getEnergy() - Params.run_energy_cost)<=0){
-                    setIsDead();
-                }
-            }
+            walk(dir);
         }
         return false;
     }

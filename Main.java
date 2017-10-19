@@ -15,6 +15,7 @@ package assignment4;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.*;
+import java.lang.reflect.Constructor;
 
 
 /*
@@ -44,25 +45,6 @@ public class Main {
      * @throws InvalidCritterException 
      */
     public static void main(String[] args) throws InvalidCritterException { 
-    	Critter.displayWorld();
-        addCritter();
-        Critter.displayWorld();        
-        Craig.runStats(Critter.getInstances("Craig"));
-        Critter.displayWorld();
-        Craig.runStats(Critter.getInstances("Craig"));
-        for(int i =0; i<50;i++) {
-        Critter.worldTimeStep();
-        
-        
-        }
-        Critter.displayWorld();
-        Critter.runStats(Critter.getInstances("CritterA")); 
-        /*for(int i =0; i<10;i++) {
-        Critter.worldTimeStep();
-        Critter.displayWorld();
-        
-        }*/
-
 
 
         if (args.length != 0) {
@@ -93,9 +75,128 @@ public class Main {
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
         
+        boolean play  = true;
+        ArrayList<String> input = new ArrayList<String>();
+        
+        while(play){
+            input = getInput(kb);
+            
+            if(input.size()>3){
+                System.out.println("error processing:");
+                printInput(input);
+            }
+            else if(input.size()==1){
+                switch(input.get(0)){
+                    case "quit": {
+                        play = false;
+                        break;
+                    }
+                    case "show":{
+                        Critter.displayWorld();
+                        break;
+                    }
+                    case "step":{
+                        Critter.worldTimeStep();
+                        break;
+                    }
+                    default:{
+                        System.out.println("invalid command:");
+                        printInput(input);
+                    }
+                }
+            }
+            else if(input.size()==2){
+                switch(input.get(0)){
+                    case "seed":{
+                    	try{
+                            long num = Long.parseLong(input.get(1));
+                            Critter.setSeed(num);
+                            
+                        }
+                        catch (NumberFormatException e){
+                            System.out.println("error processing:");
+                            printInput(input);
 
-        //ArrayList<String> input = new ArrayList<String>();
-        //getInput(kb);
+                        }
+                        break;                        
+                    }
+                    case "step":{
+                        try{
+                            int num = Integer.parseInt(input.get(1));
+
+                            for( int i = 0;i<num;i++ ){
+                                Critter.worldTimeStep();
+                            }
+                        }
+                        catch (NumberFormatException e){
+                            System.out.println("error processing:");
+                            printInput(input);
+
+                        }
+                        break;
+                    }
+                    case "stats":{
+                        Class<?> myCritter = null;
+                        Object instanceOfMyCritter = null;
+                		Constructor<?> constructor = null;
+                		
+                        
+
+                    try {
+                    myCritter = Class.forName(myPackage + "."+input.get(1));  // Class object of specified name
+                    
+        			//myCritter.runStats(Critter.getInstances(input.get(1)));
+                        } catch (ClassNotFoundException e) {
+                    System.out.println("error processing:");
+                    printInput(input);
+                   
+                   
+                        }
+                        break;
+                    }
+                    default:{
+                        System.out.println("invalid command:");
+                        printInput(input);
+                    }
+                }
+            }
+            else if (input.size() == 3){
+                switch (input.get(0)) {
+
+                    case "make": {
+                     Class<?> myCritter = null;        
+
+                    try {
+                    myCritter = Class.forName(myPackage + "."+input.get(1));  // Class object of specified name
+                        
+                        } catch (ClassNotFoundException e) {
+                    System.out.println("error processing:");
+                    printInput(input);
+                    }
+                    try{
+                        int num = Integer.parseInt(input.get(2));
+
+                        for( int i = 0;i<num;i++ ){
+                            Critter.makeCritter(input.get(1));
+                        }
+                    }
+                    catch (NumberFormatException e){
+                        System.out.println("error processing:");
+                        printInput(input);
+
+                    }
+                    
+                    
+                        
+                    break;
+                    }
+                    
+                }
+            }
+
+        }
+        
+        
         
         
         
@@ -103,12 +204,17 @@ public class Main {
         System.out.flush();
 
     }
+    public static void printInput(ArrayList<String> input){
+        for(int i =0;i<input.size();i++){
+        System.out.print(input.get(i));
+        System.out.print(" ");
+    }
+    }
 
     public static ArrayList<String> getInput(Scanner keyboard){
         ArrayList<String> result = new ArrayList<String>();
-        String input = keyboard.nextLine();
-        
-        
+        System.out.println("Critters>");
+        String input = keyboard.nextLine();    
         String[] arr = input.split(" ");
         
         for(int i =0; i<arr.length;i++){
@@ -117,7 +223,7 @@ public class Main {
          return result;
     }
     public static void addCritter() throws InvalidCritterException{
-        for(int i =0;i<50;i++){
+        for(int i =0;i<10;i++){
             Critter.makeCritter("Craig");
             Critter.makeCritter("Algae");
             Critter.makeCritter("CritterA");

@@ -52,10 +52,12 @@ public class Main {
         Critter.removeDeadCritters();
         Critter.displayWorld();
         Craig.runStats(Critter.getInstances("Craig"));
+        Critter.runStats(Critter.getInstances("Jake"));
         Critter.worldTimeStep();
         Critter.doEncounters();
         Critter.displayWorld();
-        Craig.runStats(Critter.getInstances("Craig")); 
+        Craig.runStats(Critter.getInstances("Craig"));
+        Critter.runStats(Critter.getInstances("Jake"));
         
         /*for(int i =0; i<10;i++) {
         Critter.worldTimeStep();
@@ -117,9 +119,9 @@ public class Main {
          return result;
     }
     public static void addCritter() throws InvalidCritterException{
-        for(int i =0;i<150;i++){
+        for(int i =0;i<50;i++){
             Critter.makeCritter("Craig");
-            Critter.makeCritter("Algae");
+            Critter.makeCritter("Jake");
         }
     }
     

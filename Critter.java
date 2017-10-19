@@ -14,7 +14,6 @@ package assignment4;
 
 
 import java.lang.reflect.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public abstract class Critter {
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	public static List<Critter> babies = new java.util.ArrayList<Critter>();
 	private boolean isDead;
-	private boolean hasMoved;
+	private boolean hasTimeStepped;
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -55,32 +54,11 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 
-	// ------------------ Gets and Sets ------------------
-	public int getXcoord(){
-		return this.x_coord;
-	}
-
-	public void setXcoord(int x){
-		this.x_coord = x;
-	}
-
-	public int getYcoord(){
-		return this.y_coord;
-	}
-
-	public void setYcoord(int y){
-		this.y_coord = y;
-	}
-	//----------------------------------------------------
-
 	protected final void walk(int direction) {
 		this.energy = this.energy - Params.walk_energy_cost;
 		if(this.energy<=0){
 			this.isDead = true;
-		}
-		if(!this.hasMoved){
-			hasMoved = true;
-
+		} else if(!this.hasTimeStepped || spaceAvailable(direction)){
 			switch(direction){
 				case 0:{					// Right
 					moveX(1);
@@ -104,41 +82,76 @@ public abstract class Critter {
 					moveY(-1);
 				}
 			}
-		}}
+		}
+	}
 
 	protected final void run(int direction) {
 
 		this.energy = this.energy - Params.run_energy_cost;
 		if(this.energy<=0){
 			this.isDead = true;
-		}
-		if(!this.hasMoved){
-			hasMoved = true;
-			switch(direction){
-				case 0:{					// Right
+		} else if(!this.hasTimeStepped || spaceAvailable(direction)) {
+			switch(direction) {
+				case 0: {                    // Right
 					moveX(2);
-				} case 1: {					// Up/Right
+				}
+				case 1: {                    // Up/Right
 					moveX(2);
 					moveY(2);
-				} case 2: {					// Up
+				}
+				case 2: {                    // Up
 					moveY(2);
-				} case 3: {					// Up/Left
+				}
+				case 3: {                    // Up/Left
 					moveX(-2);
 					moveY(2);
-				} case 4: {					// Left
+				}
+				case 4: {                    // Left
 					moveX(-2);
-				} case 5: {					// Down/Left
+				}
+				case 5: {                    // Down/Left
 					moveX(-2);
 					moveY(-2);
-				} case 6: {					// Down
+				}
+				case 6: {                    // Down
 					moveY(-2);
-				} case 7: {					// Down//Right
+				}
+				case 7: {                    // Down//Right
 					moveX(2);
 					moveY(-2);
 				}
 			}
+		}
+	}
 
-		}}
+	private  boolean spaceAvailable(int direction){
+		int projected_location_x = this.x_coord;
+		int projected_location_y = this.y_coord;
+		switch(direction){
+			case 0:{					// Right
+				projected_location_x =  projectedMoveX(1);
+			} case 1: {					// Up/Right
+				projected_location_x =  projectedMoveX(1);
+				projected_location_y = projectedMoveY(1);
+			} case 2: {					// Up
+				projected_location_y = projectedMoveY(1);
+			} case 3: {					// Up/Left
+				projected_location_x =  projectedMoveX(-1);
+				projected_location_y = projectedMoveY(1);
+			} case 4: {					// Left
+				projected_location_x =  projectedMoveX(-1);
+			} case 5: {					// Down/Left
+				projected_location_x =  projectedMoveX(-1);
+				projected_location_y = projectedMoveY(-1);
+			} case 6: {					// Down
+				projected_location_y = projectedMoveY(-1);
+			} case 7: {					// Down/Right
+				projected_location_x =  projectedMoveX(1);
+				projected_location_y = projectedMoveY(-1);
+			}
+		}
+		return isOccupied(projected_location_x,projected_location_y);
+	}
 
 	// --------------------------- Movement ---------------------------
 	private void moveX(int x){
@@ -182,7 +195,6 @@ public abstract class Critter {
 		Object instanceOfMyCritter = null;
 		Constructor<?> constructor = null;
 
-
 		try {
 			myCritter = Class.forName(myPackage + "."+critter_class_name); 	// Class object of specified name
 		} catch (ClassNotFoundException e) {
@@ -202,9 +214,6 @@ public abstract class Critter {
 		me.energy = Params.start_energy;
 		me.isDead = false;
 		population.add(me);
-
-
-
 	}
 
 	/**
@@ -316,14 +325,17 @@ public abstract class Critter {
 	}
 	public static void worldTimeStep() throws InvalidCritterException{
 		for(Critter obj : population){
-			obj.doTimeStep();                                // Perform all individual time steps
+			obj.doTimeStep();               // Perform all individual time steps
+			obj.hasTimeStepped = true;		// Needed for critters trying to flee
 		}
 		doEncounters();
 		updateRestEnergy();
 		removeDeadCritters();
+		for(Critter obj : population){
+			obj.hasTimeStepped = false;		// Reset
+		}
 		addBabies();
 		RefreshAlgae();
-		// Need to Refresh Algae Here
 	}
 
 	private static void addBabies(){
@@ -342,61 +354,71 @@ public abstract class Critter {
 
 		// getting critters who can have a possible fight
 		for(int i = 0; i< population.size();i++){
-			for(int j=i+1; j<population.size();j++){
+			for(int j = i + 1; j < population.size(); j++){
+				if((population.get(i).x_coord == population.get(j).x_coord)&&			// x matches
+						(population.get(i).y_coord == population.get(j).y_coord)&&		// y matches
+						(!population.get(i).isDead) && (!population.get(j).isDead)){	// both alive
+					boolean a_wants_fight = population.get(i).fight(population.get(j).toString());
+					boolean b_wants_fight = population.get(j).fight(population.get(i).toString());
 
-				if((population.get(i).x_coord == population.get(j).x_coord)&&
-						(population.get(i).y_coord == population.get(j).y_coord)&&(i!=j)&&
-						(!(population.get(i).isDead) &&(!(population.get(j).isDead)))){
-					doFight(population.get(i),population.get(j));
+					if(a_wants_fight && b_wants_fight){ 	// both want to fight
+						bothFight(population.get(i), population.get(j));
+						// __________________________________________________________________
+					} else if(a_wants_fight && !b_wants_fight && !population.get(j).isDead){ // A wants fight
+						OneFights(population.get(i), population.get(j));		// B didn't die running
+						// __________________________________________________________________
+					} else if(!a_wants_fight &&	b_wants_fight && !population.get(i).isDead){ // B wants fight
+						OneFights(population.get(j), population.get(i));		// A didn't die running
+						// __________________________________________________________________
+					} else if(!a_wants_fight && !b_wants_fight &&					  // Neither wants to fight
+							!population.get(i).isDead && !population.get(j).isDead) { // Neither died running
+						Neither(population.get(i), population.get(j)); }
 				}
 			}
 		}
 	}
 
-	private static void doFight(Critter a, Critter b){
-		int roll_a; int roll_b;
-
-		boolean a_wants_to_fight = a.fight(b.toString());
-		boolean b_wants_to_fight = b.fight(a.toString());
-
-		if((a_wants_to_fight&&b_wants_to_fight)&&(!a.isDead)&&(!b.isDead)){
-			roll_a = getRandomInt(a.energy);
-			roll_b = getRandomInt(b.energy);
-			makeFightHappen(a,b, roll_a,roll_b);
-		}
-		if((!a_wants_to_fight)&&(b_wants_to_fight)&&(!a.isDead)&&(!b.isDead)){
-			roll_a =0;
-			roll_b =getRandomInt(b.energy);
-			makeFightHappen(a,b, roll_a,roll_b);
-		}
-		if((a_wants_to_fight)&&(!b_wants_to_fight)&&(!a.isDead)&&(!b.isDead)){
-			roll_a = getRandomInt(a.energy);
-			roll_b =0;
-			makeFightHappen(a,b, roll_a,roll_b);
-		}
-		if((!a_wants_to_fight)&&(!b_wants_to_fight)&&(!a.isDead)&&(!b.isDead)){
-			roll_a =0;
-			roll_b =0;
-			makeFightHappen(a,b, roll_a,roll_b);
+	/*	If Both want to fight, then neither tried to run, so we won't
+	 *	need to check if either of them are dead in this function.
+	 * 	There are no edge cases in this scenario.
+	 */
+	private static void bothFight(Critter a, Critter b){
+		int a_roll = getRandomInt(a.energy);		// A rolls
+		int b_roll = getRandomInt(b.energy);		// B rolls
+		if(a_roll >= b_roll){						// A wins draws
+			a.energy += (b.energy/2);
+			b.isDead = true;
+		} else {
+			b.energy += (a.energy/2);
+			a.isDead = true;
 		}
 	}
-	private static void makeFightHappen(Critter a, Critter b, int roll_a, int roll_b){
 
-		if((a.x_coord == b.x_coord)&&(a.y_coord==b.y_coord)){
+	private static void OneFights(Critter fighter, Critter docile){
+		if((fighter.x_coord == docile.x_coord) && (fighter.y_coord	== docile.x_coord) &&	// Still same position
+				!docile.isDead){					// Docile didn't die running
+			fighter.energy += (docile.energy/2);	// No roll necessary, fighter wins
+			docile.isDead = true;					// docile critter is destroyed
+		}
+	}
 
-			if(roll_a>=roll_b){
-				// i gets half of the energy
-				a.energy+= ((b.energy)/2);
-				b.energy = -1;
+	private static void Neither(Critter a, Critter b){
+		if((a.x_coord == b.x_coord) && (a.y_coord == b.y_coord) && 	// Still same coordinates
+				!a.isDead && !b.isDead){			// Neither died running
+			int a_roll = getRandomInt(a.energy);	// Proceed as if both wanted to fight
+			int b_roll = getRandomInt(b.energy);
+			if(a_roll >= b_roll){					// A Still wins draws
+				a.energy += (b.energy/2);
 				b.isDead = true;
-			}
-			else{
-				b.energy += ((a.energy)/2);
-				a.energy = -1;
+			} else {
+				b.energy += (a.energy/2);
 				a.isDead = true;
 			}
 		}
-	}// change from public to private
+	}
+
+
+	// change from public to private
 	private static void RefreshAlgae() throws InvalidCritterException {
 		for(int i = 0; i < Params.refresh_algae_count; i++){
 			makeCritter("Algae");
@@ -441,66 +463,6 @@ public abstract class Critter {
 			}
 			System.out.println("");
 		}
-
-
-	}
-	protected  boolean isLocationFreeWalk(int direction){
-		int projected_location_x =this.x_coord;
-		int projected_location_y =this.y_coord;
-		switch(direction){
-			case 0:{					// Right
-				projected_location_x =  projectedMoveX(1);
-			} case 1: {					// Up/Right
-				projected_location_x =  projectedMoveX(1);
-				projected_location_y = projectedMoveY(1);
-			} case 2: {					// Up
-				projected_location_y = projectedMoveY(1);
-			} case 3: {					// Up/Left
-				projected_location_x =  projectedMoveX(-1);
-				projected_location_y = projectedMoveY(1);
-			} case 4: {					// Left
-				projected_location_x =  projectedMoveX(-1);
-			} case 5: {					// Down/Left
-				projected_location_x =  projectedMoveX(-1);
-				projected_location_y = projectedMoveY(-1);
-			} case 6: {					// Down
-				projected_location_y = projectedMoveY(-1);
-			} case 7: {					// Down/Right
-				projected_location_x =  projectedMoveX(1);
-				projected_location_y = projectedMoveY(-1);
-			}
-		}
-		return isOccupied(projected_location_x,projected_location_y);
-	}
-
-	protected boolean isLocationFreeRun(int direction){
-
-		int projected_location_x = this.x_coord;
-		int projected_location_y = this.y_coord;
-		switch(direction){
-			case 0:{					// Right
-				projected_location_x  = projectedMoveX(2);
-			} case 1: {					// Up/Right
-				projected_location_x  = projectedMoveX(2);
-				projected_location_y = projectedMoveY(2);
-			} case 2: {					// Up
-				projected_location_y = projectedMoveY(2);
-			} case 3: {					// Up/Left
-				projected_location_x  = projectedMoveX(-2);
-				projected_location_y = projectedMoveY(2);
-			} case 4: {					// Left
-				projected_location_x  = projectedMoveX(-2);
-			} case 5: {					// Down/Left
-				projected_location_x  = projectedMoveX(-2);
-				projected_location_y = projectedMoveY(-2);
-			} case 6: {					// Down
-				projected_location_y = projectedMoveY(-2);
-			} case 7: {					// Down//Right
-				projected_location_x  = projectedMoveX(2);
-				projected_location_y = projectedMoveY(-2);
-			}
-		}
-		return isOccupied(projected_location_x,projected_location_y);
 	}
 
 	private int projectedMoveX(int x){
@@ -518,12 +480,5 @@ public abstract class Critter {
 			if((obj.x_coord==x)&&(obj.y_coord==y)&&(!obj.isDead)) return false;
 		}
 		return true;
-	}
-	protected void setIsDead(){
-		this.isDead = true;
-	}
-
-	protected boolean hasMoved(){
-		return this.hasMoved;
 	}
 }

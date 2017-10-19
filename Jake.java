@@ -41,6 +41,7 @@ public class Jake extends Critter {
     public boolean fight(String oponent) {
         if((oponent.equals("@")) || ((this.getEnergy() >= 100) && !oponent.equals("J"))){ return true; }
         else if(!hasMoved){
+            hasMoved = true;
             switch (dir) {                // Tries to go back the way it came.
                 case 0: { dir = 4; }
                 case 1: { dir = 5; }
@@ -51,6 +52,7 @@ public class Jake extends Critter {
                 case 6: { dir = 2; }
                 case 7: { dir = 3; }
             }
+            walk(dir);
         }
         return false;
     }

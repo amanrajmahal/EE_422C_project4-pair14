@@ -37,18 +37,9 @@ public class CritterA extends Critter {
 			
 
 			int dir = getRandomInt(7);
-			if(isLocationFreeRun(dir)&&(!hasMoved())){
 			run(dir);
-			return false;
-			}
-			else{
-				
-				if((getEnergy() - Params.run_energy_cost)<=0){
-					setIsDead();
-				}
-				return false;
-			}		
-	}
+			return false;				
+		}
 		return true;
 	}
 

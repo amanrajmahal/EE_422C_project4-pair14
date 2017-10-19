@@ -30,6 +30,7 @@ public abstract class Critter {
 	public static List<Critter> babies = new java.util.ArrayList<Critter>();
 	private boolean isDead;
 	private boolean hasMoved;
+	private boolean timeStepDone;
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -71,16 +72,34 @@ public abstract class Critter {
 	public void setYcoord(int y){
 		this.y_coord = y;
 	}
-	//----------------------------------------------------
-	
+	/*----------------------------------------------------
+	* executes walk of a critter after checking if it has already moved
+	* if executed from fight function, it ensures the projected location is free
+	* @param direction to walk
+	*/
 	protected final void walk(int direction) {
 		this.energy = this.energy - Params.walk_energy_cost;
 		if(this.energy<=0){
 			this.isDead = true;
 		}
-		if(!this.hasMoved){
+		if((!this.hasMoved)&&(!this.timeStepDone)){
 			hasMoved = true;
-		
+			makeWalk(direction);
+		}
+		else if((!this.hasMoved)&&(this.timeStepDone)){
+			hasMoved = true;
+
+			if(isLocationFreeWalk(direction)){
+				makeWalk(direction);
+			}
+		}
+	}
+	/*
+	* moves critter in a specified direction
+	* @params direction to move
+	*/
+
+	private void makeWalk(int direction){
 		switch(direction){
 			case 0:{					// Right
 				moveX(1);
@@ -104,16 +123,36 @@ public abstract class Critter {
 				moveY(-1);
 			}
 		}
-	}}
-	
+	}
+	/*----------------------------------------------------
+	* executes run of a critter after checking if it has already moved
+	* if executed from fight function, it ensures the projected location is free
+	* @param direction to run
+	*/
 	protected final void run(int direction) {
 		
 	this.energy = this.energy - Params.run_energy_cost;
 	if(this.energy<=0){
 		this.isDead = true;
 	}
-	if(!this.hasMoved){
-		hasMoved = true;
+	if(!this.hasMoved&&(!this.timeStepDone)){
+		this.hasMoved = true;
+		makeWalk(direction);
+	}
+	else if((!this.hasMoved)&&(this.timeStepDone)){
+		this.hasMoved = true;
+		if(isLocationFreeRun(direction)){
+			makeRun(direction);
+		}
+
+	}
+	}
+	/*
+	* moves critter in a specified direction
+	* @params direction to move
+	*/
+
+	private void makeRun(int direction){
 		switch(direction){
 			case 0:{					// Right
 				moveX(2);
@@ -137,8 +176,7 @@ public abstract class Critter {
 				moveY(-2);
 			}
 		}
-		
-	}}
+	}
 
 	// --------------------------- Movement ---------------------------
 	private void moveX(int x){
@@ -317,28 +355,54 @@ public abstract class Critter {
 public static void worldTimeStep() throws InvalidCritterException{
         for(Critter obj : population){
             obj.doTimeStep();                                // Perform all individual time steps
+        	obj.timeStepDone = true;
         }
         doEncounters();
         updateRestEnergy();
         removeDeadCritters();
+        resetTimeStep();
+        resetHasMoved();
         addBabies();
         RefreshAlgae();
         // Need to Refresh Algae Here
     }
+    /*
+    * Resets timeStepDone of each critter after completing one timestep
+    */
+    private static void resetTimeStep(){
+    	for(Critter obj : population){
+    		obj.timeStepDone = false;
+    	}
+    }
+    /*
+    * Resets hasMoved field for each critter after completing a timestep
+    */
+
+    private static void resetHasMoved(){
+    	for(Critter obj : population){
+    		obj.hasMoved = false;
+    	}
+    }
+    /*
+    * Adds generated offsprings to population
+    */
 
     private static void addBabies(){
         population.addAll(babies);
         babies.clear();
     }
+    /*
+    * Reduces the amount of rest energy from each critter
+    */
 
     private static void updateRestEnergy(){
         for(Critter obj : population){
             obj.energy -= Params.rest_energy_cost;
-             
+            if(obj.energy<=0) obj.isDead = true;
         }
     }
 	// change to private before submission
-	public static void doEncounters(){
+	private static void doEncounters(){
 
 	// getting critters who can have a possible fight
 	for(int i = 0; i< population.size();i++){
@@ -402,7 +466,7 @@ public static void worldTimeStep() throws InvalidCritterException{
             makeCritter("Algae");
         }
     }
-	public static void removeDeadCritters() {
+	private static void removeDeadCritters() {
 		for(int i =0;i<population.size();i++) {
 			
 			if(population.get(i).isDead==true) {
@@ -447,7 +511,7 @@ public static void worldTimeStep() throws InvalidCritterException{
 		
 		
 	}
-	protected  boolean isLocationFreeWalk(int direction){
+	private boolean isLocationFreeWalk(int direction){
 		int projected_location_x =this.x_coord;
 		int projected_location_y =this.y_coord;
 		switch(direction){
@@ -507,13 +571,6 @@ public static void worldTimeStep() throws InvalidCritterException{
 		}
 		return isOccupied(projected_location_x,projected_location_y);
 	}
-
-
-
-
-
-
-
 	private int projectedMoveX(int x){
 		int result = ((((x_coord + x)%Params.world_width)+Params.world_width)%Params.world_width);
 		return result;
@@ -529,12 +586,5 @@ public static void worldTimeStep() throws InvalidCritterException{
 			if((obj.x_coord==x)&&(obj.y_coord==y)&&(!obj.isDead)) return false;
 		}
 		return true;
-	}
-	protected void setIsDead(){
-		this.isDead = true;
-	}
-
-	protected boolean hasMoved(){
-		return this.hasMoved;
 	}
 }

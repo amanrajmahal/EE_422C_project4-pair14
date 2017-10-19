@@ -190,7 +190,10 @@ public class Main {
                         
                     break;
                     }
-                    
+                default: {
+                	System.out.println("error processing:");
+                	printInput(input);
+                }
                 }
             }
 

@@ -251,8 +251,8 @@ public abstract class Critter {
 		}
 		
 		Critter me = (Critter)instanceOfMyCritter;
-		me.x_coord = getRandomInt(Params.world_width-1);
-		me.y_coord = getRandomInt(Params.world_height-1);
+		me.x_coord = getRandomInt(Params.world_width);
+		me.y_coord = getRandomInt(Params.world_height);
 		me.energy = Params.start_energy;
 		me.isDead = false;
 		population.add(me);
@@ -506,6 +506,7 @@ public static void worldTimeStep() throws InvalidCritterException{
 		world[0][width+1] ="+";
 		world[height+1][0] = "+";
 		world[height+1][width+1] ="+";
+		
 		
 		for(int i = 1; i<=width; i++) {
 			world [0][i] = "-";

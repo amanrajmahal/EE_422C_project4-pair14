@@ -14,8 +14,10 @@ package assignment4;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.awt.List;
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 
 /*
@@ -144,9 +146,12 @@ public class Main {
 
                     try {
                     myCritter = Class.forName(myPackage + "."+input.get(1));  // Class object of specified name
+                    instanceOfMyCritter = myCritter.newInstance();
+                   
                     
-        			//myCritter.runStats(Critter.getInstances(input.get(1)));
-                        } catch (ClassNotFoundException e) {
+                    Method Stats = instanceOfMyCritter.getClass().getMethod("runStats", );
+        			
+                        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException e) {
                     System.out.println("error processing:");
                     printInput(input);
                    
@@ -168,30 +173,25 @@ public class Main {
 
                     try {
                     myCritter = Class.forName(myPackage + "."+input.get(1));  // Class object of specified name
-                        
-                        } catch (ClassNotFoundException e) {
-                    System.out.println("error processing:");
-                    printInput(input);
-                    }
-                    try{
+                    
                         int num = Integer.parseInt(input.get(2));
 
                         for( int i = 0;i<num;i++ ){
                             Critter.makeCritter(input.get(1));
                         }
-                    }
-                    catch (NumberFormatException e){
-                        System.out.println("error processing:");
-                        printInput(input);
-
-                    }
+                        
                     
+                        
+                        } catch (ClassNotFoundException  | NumberFormatException e) {
+                    System.out.println("error processing:");
+                    printInput(input);
                     
+                    } 
                         
                     break;
                     }
                 default: {
-                	System.out.println("error processing:");
+                	System.out.println("invalid command:");
                 	printInput(input);
                 }
                 }
@@ -209,8 +209,8 @@ public class Main {
     }
     public static void printInput(ArrayList<String> input){
         for(int i =0;i<input.size();i++){
-        System.out.print(input.get(i));
-        System.out.print(" ");
+        System.out.print(input.get(i)+" ");
+        
     }
     }
 

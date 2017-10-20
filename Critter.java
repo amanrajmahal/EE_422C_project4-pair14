@@ -56,7 +56,23 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 
-	/*
+	// ------------------ Gets and Sets ------------------
+	public int getXcoord(){
+		return this.x_coord;
+	}
+
+	public void setXcoord(int x){
+		this.x_coord = x;
+	}
+
+	public int getYcoord(){
+		return this.y_coord;
+	}
+
+	public void setYcoord(int y){
+		this.y_coord = y;
+	}
+	/*----------------------------------------------------
 	* executes walk of a critter after checking if it has already moved
 	* if executed from fight function, it ensures the projected location is free
 	* @param direction to walk
@@ -219,7 +235,6 @@ public abstract class Critter {
 		Class<?> myCritter = null;
 		Object instanceOfMyCritter = null;
 		Constructor<?> constructor = null;
-		
 
 		try {
 			myCritter = Class.forName(myPackage + "."+critter_class_name); 	// Class object of specified name

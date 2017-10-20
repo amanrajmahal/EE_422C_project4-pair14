@@ -12,15 +12,15 @@ package assignment4;
  * Fall 2016
  */
 
-import com.sun.org.apache.bcel.internal.generic.POP;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 import java.awt.List;
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 
@@ -31,7 +31,8 @@ import java.lang.reflect.Method;
  */
 public class Main {
 
-    static Scanner kb;	// scanner connected to keyboard input, or input file
+    
+	static Scanner kb;	// scanner connected to keyboard input, or input file
     private static String inputFile;	// input file, used instead of keyboard input if specified
     static ByteArrayOutputStream testOutputString;	// if test specified, holds all console output
     private static String myPackage;	// package of Critter file.  Critter cannot be in default pkg.
@@ -50,7 +51,7 @@ public class Main {
      * and the second is test (for test output, where all output to be directed to a String), or nothing.
      * @throws InvalidCritterException 
      */
-    public static void main(String[] args) throws InvalidCritterException { 
+    public static void main(String[] args){
 
 
         if (args.length != 0) {
@@ -88,7 +89,7 @@ public class Main {
             input = getInput(kb);
             
             if(input.size()>3){
-                System.out.println("error processing:");
+                System.out.print("error processing:");
                 printInput(input);
             }
             else if(input.size()==1){
@@ -102,11 +103,15 @@ public class Main {
                         break;
                     }
                     case "step":{
-                        Critter.worldTimeStep();
-                        break;
+                        try {
+                            Critter.worldTimeStep();
+                            break;
+                        } catch(InvalidCritterException e) {
+
+                        }
                     }
                     default:{
-                        System.out.println("invalid command:");
+                        System.out.print("invalid command:");
                         printInput(input);
                     }
                 }
@@ -120,7 +125,7 @@ public class Main {
                             
                         }
                         catch (NumberFormatException e){
-                            System.out.println("error processing:");
+                            System.out.print("error processing:");
                             printInput(input);
 
                         }
@@ -134,8 +139,8 @@ public class Main {
                                 Critter.worldTimeStep();
                             }
                         }
-                        catch (NumberFormatException e){
-                            System.out.println("error processing:");
+                        catch (NumberFormatException | InvalidCritterException e){
+                            System.out.print("error processing:");
                             printInput(input);
 
                         }
@@ -144,32 +149,26 @@ public class Main {
                     case "stats":{
                         Class<?> myCritter = null;
                         Object instanceOfMyCritter = null;
-                        Constructor<?> constructor = null;
+                		Constructor<?> constructor = null;
+                		
+                        
 
-
-
-                        try {
-                            myCritter = Class.forName(myPackage + "."+input.get(1));  // Class object of specified name
-                            instanceOfMyCritter = myCritter.newInstance();
-
-                            Class [] paramTypeList = new Class[1];
-                            paramTypeList[0] = java.util.List.class;
-
-
-
-                            Method stats = instanceOfMyCritter.getClass().getMethod("runStats",paramTypeList);
-                            stats.invoke(null, Critter.getInstances(input.get(1)));
-
-                        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-                            System.out.println("error processing:");
-                            printInput(input);
-
-
+                    try {
+                    myCritter = Class.forName(myPackage + "."+input.get(1));  // Class object of specified name
+                    instanceOfMyCritter = myCritter.newInstance(); 
+                    Method stats = instanceOfMyCritter.getClass().getMethod("runStats", java.util.List.class);
+                    stats.invoke(null, Critter.getInstances(input.get(1)));
+        			
+                        } catch (ClassNotFoundException | InvalidCritterException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+                    System.out.print("error processing:");
+                    printInput(input);
+                   
+                   
                         }
                         break;
                     }
                     default:{
-                        System.out.println("invalid command:");
+                        System.out.print("invalid command:");
                         printInput(input);
                     }
                 }
@@ -191,8 +190,8 @@ public class Main {
                         
                     
                         
-                        } catch (ClassNotFoundException  | NumberFormatException e) {
-                    System.out.println("error processing:");
+                        } catch (ClassNotFoundException | InvalidCritterException | NumberFormatException e) {
+                    System.out.print("error processing:");
                     printInput(input);
                     
                     } 
@@ -200,7 +199,7 @@ public class Main {
                     break;
                     }
                 default: {
-                	System.out.println("invalid command:");
+                	System.out.print("invalid command:");
                 	printInput(input);
                 }
                 }
@@ -218,14 +217,15 @@ public class Main {
     }
     public static void printInput(ArrayList<String> input){
         for(int i =0;i<input.size();i++){
-        System.out.print(input.get(i)+" ");
+        //System.out.print(input.get(i)+" ");
         
     }
+        System.out.println("");
     }
 
     public static ArrayList<String> getInput(Scanner keyboard){
         ArrayList<String> result = new ArrayList<String>();
-        System.out.println("Critters>");
+        System.out.print("Critters>");
         String input = keyboard.nextLine();    
         String[] arr = input.split(" ");
         
@@ -238,7 +238,7 @@ public class Main {
         for(int i =0;i<10;i++){
             Critter.makeCritter("Craig");
             Critter.makeCritter("Algae");
-            Critter.makeCritter("CritterA");
+            Critter.makeCritter("Critter2");
         }
     }
     

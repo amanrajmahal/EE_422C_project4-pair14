@@ -88,6 +88,8 @@ public class Main {
         while(play){
             input = getInput(kb);
             
+            if(validCommand(input)) {
+            
             if(input.size()>3){
                 System.out.print("error processing:");
                 printInput(input);
@@ -111,7 +113,7 @@ public class Main {
                         }
                     }
                     default:{
-                        System.out.print("invalid command:");
+                        System.out.print("error processing:");
                         printInput(input);
                     }
                 }
@@ -168,7 +170,7 @@ public class Main {
                         break;
                     }
                     default:{
-                        System.out.print("invalid command:");
+                        System.out.print("error processing:");
                         printInput(input);
                     }
                 }
@@ -199,13 +201,13 @@ public class Main {
                     break;
                     }
                 default: {
-                    System.out.print("invalid command:");
+                    System.out.print("error processing:");
                     printInput(input);
                 }
                 }
             }
 
-        }
+        }}
         
         
         
@@ -217,7 +219,7 @@ public class Main {
     }
     public static void printInput(ArrayList<String> input){
         for(int i =0;i<input.size();i++){
-        //System.out.print(input.get(i)+" ");
+        System.out.print(input.get(i)+" ");
         
     }
         System.out.println("");
@@ -240,6 +242,18 @@ public class Main {
             Critter.makeCritter("Algae");
             Critter.makeCritter("Critter2");
         }
+    }
+    public static boolean validCommand(ArrayList<String> input) {
+    	ArrayList<String> validInput = new ArrayList<String>();
+    	validInput.add("make"); validInput.add("quit"); validInput.add("show"); validInput.add("step");
+    	validInput.add("seed");validInput.add("stats");
+    	
+    	if(!validInput.contains(input.get(0))) {
+    		System.out.print("invalid command:");
+    		printInput(input);
+    		return false;}
+    	
+    	return true;
     }
     
 }

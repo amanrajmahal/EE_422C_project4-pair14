@@ -82,13 +82,15 @@ public class Main {
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
         
-        boolean play  = true;
-        ArrayList<String> input = new ArrayList<String>();
-        
+        boolean play  = true;        
         while(play){
             System.out.print("Critters>");
-            input = getInput(kb);
-            
+            ArrayList<String> input = new ArrayList<String>();
+            String input_string = kb.nextLine();    
+            String[] arr = input_string.split(" ");
+            for(int i =0; i<arr.length;i++){
+            input.add(i,arr[i]);
+            }         
             if(validCommand(input)) {
             
             if(input.size()>3){
@@ -114,8 +116,9 @@ public class Main {
                         }
                     }
                     default:{
-                        System.out.print("error processing:");
-                        printInput(input);
+                        String temp = "error processing:"+input_string;
+                        System.out.println(temp);
+                        
                     }
                 }
             }
@@ -124,12 +127,15 @@ public class Main {
                     case "seed":{
                         try{
                             long num = Long.parseLong(input.get(1));
+                            if(num<0){
+                                throw new IllegalArgumentException();
+                            }
                             Critter.setSeed(num);
                             
                         }
-                        catch (NumberFormatException e){
-                            System.out.print("error processing:");
-                            printInput(input);
+                        catch (IllegalArgumentException e){
+                            String temp = "error processing:"+input_string;
+                            System.out.println(temp);
 
                         }
                         break;                        
@@ -137,14 +143,17 @@ public class Main {
                     case "step":{
                         try{
                             int num = Integer.parseInt(input.get(1));
+                            if(num<0){
+                                throw new IllegalArgumentException();
+                            }
 
                             for( int i = 0;i<num;i++ ){
                                 Critter.worldTimeStep();
                             }
                         }
-                        catch (NumberFormatException | InvalidCritterException e){
-                            System.out.print("error processing:");
-                            printInput(input);
+                        catch ( InvalidCritterException | IllegalArgumentException e){
+                            String temp = "error processing:"+input_string;
+                            System.out.println(temp);
 
                         }
                         break;
@@ -163,16 +172,16 @@ public class Main {
                     stats.invoke(null, Critter.getInstances(input.get(1)));
                     
                         } catch (ClassNotFoundException | InvalidCritterException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-                    System.out.print("error processing:");
-                    printInput(input);
+                        String temp = "error processing:"+input_string;
+                        System.out.println(temp);
                    
                    
                         }
                         break;
                     }
                     default:{
-                        System.out.print("error processing:");
-                        printInput(input);
+                        String temp = "error processing:"+input_string;
+                        System.out.println(temp);
                     }
                 }
             }
@@ -187,28 +196,37 @@ public class Main {
                     
                         int num = Integer.parseInt(input.get(2));
 
+                        if(num<0){
+                            throw new IllegalArgumentException();
+                        }
+
                         for( int i = 0;i<num;i++ ){
                             Critter.makeCritter(input.get(1));
                         }
                         
                     
                         
-                        } catch (ClassNotFoundException | InvalidCritterException | NumberFormatException e) {
-                    System.out.print("error processing:");
-                    printInput(input);
+                        } catch (ClassNotFoundException | InvalidCritterException | IllegalArgumentException e) {
+                        String temp = "error processing:"+input_string;
+                        System.out.println(temp);
                     
                     } 
                         
                     break;
                     }
                 default: {
-                    System.out.print("error processing:");
-                    printInput(input);
+                    String temp = "error processing:"+input_string;
+                        System.out.println(temp);
                 }
                 }
             }
 
-        }}
+        }
+        else {
+            String temp = "Invalid command:"+input_string;
+            System.out.println(temp);
+        }
+    }
         
         
         
@@ -226,7 +244,7 @@ public class Main {
         System.out.println("");
     }
 
-    public static ArrayList<String> getInput(Scanner keyboard){
+    /*public static ArrayList<String> getInput(Scanner keyboard){
         ArrayList<String> result = new ArrayList<String>();
         //System.out.print("Critters>");
         String input = keyboard.nextLine();    
@@ -236,7 +254,7 @@ public class Main {
             result.add(i,arr[i]);
         }
          return result;
-    }
+    }*/
     public static void addCritter() throws InvalidCritterException{
         for(int i =0;i<10;i++){
             Critter.makeCritter("Craig");
@@ -250,8 +268,7 @@ public class Main {
     	validInput.add("seed");validInput.add("stats");
     	
     	if(!validInput.contains(input.get(0))) {
-    		System.out.print("invalid command:");
-    		printInput(input);
+    		
     		return false;}
     	
     	return true;

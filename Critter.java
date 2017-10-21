@@ -96,7 +96,7 @@ public abstract class Critter {
 	}
 	/*
 	* moves critter in a specified direction
-	* @params direction to move
+	* @param direction to move
 	*/
 
 	private void makeWalk(int direction){
@@ -157,7 +157,7 @@ public abstract class Critter {
 	}
 	/*
 	* moves critter in a specified direction
-	* @params direction to move
+	* @param direction to move
 	*/
 
 	private void makeRun(int direction){
@@ -205,6 +205,10 @@ public abstract class Critter {
 
 	// ---------------------------------------------------------------
 
+	/*
+	 * checks for minimum reproduction energy and places child
+	 * @param object of child and direction to place it in
+	 */
 	protected final void reproduce(Critter offspring, int direction) {
 		if(this.energy >= Params.min_reproduce_energy){
 			offspring.energy = (this.energy/2);					// Offspring energy half parent energy rounded down
@@ -369,6 +373,10 @@ public abstract class Critter {
 		population.clear();
 		babies.clear();
 	}
+	/*
+	 * Does timesteps for the entire population and encounters
+	 * @throws Invalid Critter Exception
+	 */
 public static void worldTimeStep() throws InvalidCritterException{
         for(Critter obj : population){
             obj.doTimeStep();                                // Perform all individual time steps
@@ -418,7 +426,9 @@ public static void worldTimeStep() throws InvalidCritterException{
             if(obj.energy<=0) obj.isDead = true;
         }
     }
-	// change to private before submission
+	/*
+	 * Resolves if two critters are on a same position in the world
+	 */
 	private static void doEncounters(){
 
 	// getting critters who can have a possible fight
@@ -433,6 +443,9 @@ public static void worldTimeStep() throws InvalidCritterException{
 			}
 		}
 	}
+	/*
+	 * @param objects of two critters to resolve position conflict
+	 */
 
 	private static void doFight(Critter a, Critter b){
 		int roll_a; int roll_b;
@@ -483,6 +496,9 @@ public static void worldTimeStep() throws InvalidCritterException{
             makeCritter("Algae");
         }
     }
+	/*
+	 * removes critters from population
+	 */
 	private static void removeDeadCritters() {
 		for(int i =0;i<population.size();i++) {
 			
@@ -492,7 +508,9 @@ public static void worldTimeStep() throws InvalidCritterException{
 			}			
 		}
 	}
-
+	/*
+	 * Displays a 2-D array showing simulated world
+	 */
 
 
 	
@@ -529,6 +547,10 @@ public static void worldTimeStep() throws InvalidCritterException{
 		
 		
 	}
+	/*
+	 * checks if the location is free in given direction
+	 * @param given direction to walk
+	 */
 	private boolean isLocationFreeWalk(int direction){
 		int projected_location_x =this.x_coord;
 		int projected_location_y =this.y_coord;
@@ -614,6 +636,11 @@ public static void worldTimeStep() throws InvalidCritterException{
 		int result = ((((y_coord + x)%Params.world_height)+Params.world_height)%Params.world_height);
 		return result;
 	}
+	
+	/*
+	 * Checks to see if specified location is occupied by any other Critter
+	 * @param co-ordinates of the given location
+	 */
 
 	private static boolean isOccupied(int x , int y){
 		for(Critter obj : population){

@@ -86,6 +86,7 @@ public class Main {
         ArrayList<String> input = new ArrayList<String>();
         
         while(play){
+            System.out.print("Critters>");
             input = getInput(kb);
             
             if(validCommand(input)) {
@@ -227,7 +228,7 @@ public class Main {
 
     public static ArrayList<String> getInput(Scanner keyboard){
         ArrayList<String> result = new ArrayList<String>();
-        System.out.print("Critters>");
+        //System.out.print("Critters>");
         String input = keyboard.nextLine();    
         String[] arr = input.split(" ");
         

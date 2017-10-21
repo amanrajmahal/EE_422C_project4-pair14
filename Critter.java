@@ -366,7 +366,8 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
-		// Complete this method.
+		population.clear();
+		babies.clear();
 	}
 public static void worldTimeStep() throws InvalidCritterException{
         for(Critter obj : population){
